@@ -1,0 +1,23 @@
+# The pipeline simply consists in running tests.
+#
+# Cache build dependencies to speed up pipeline. See :
+# https://support.atlassian.com/bitbucket-cloud/docs/cache-dependencies/
+# See here to understand the choice for the folders we cache :
+# https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
+
+image: rust
+
+pipelines:
+  default:
+    - step:
+        name: Run tests
+        caches:
+          - cargo-registry-index
+          - cargo-registry-cache
+        script:
+          - cargo test
+
+definitions:
+  caches:
+    cargo-registry-index: /usr/local/cargo/registry/index/
+    cargo-registry-cache: /usr/local/cargo/registry/cache/

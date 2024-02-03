@@ -1,0 +1,52 @@
+# The pipeline simply consists in running tests.
+#
+# Cache build dependencies to speed up pipeline. See :
+# https://support.atlassian.com/bitbucket-cloud/docs/cache-dependencies/
+
+image: python:3.11
+
+definitions:
+
+  caches:
+    apt-lists: /var/lib/apt/lists
+    apt-cache: /var/cache/apt
+
+  yaml-anchors:
+    - &setup-script >-
+        rm /etc/apt/apt.conf.d/docker-clean
+        && apt-get update
+        && apt-get install -y \
+              libsasl2-dev \
+              python3-dev \
+              libldap2-dev \
+              libssl-dev \
+              libxml2-dev \
+              libxslt1-dev \
+              zlib1g-dev \
+              antiword \
+              unrtf \
+              poppler-utils \
+              tesseract-ocr \
+              flac \
+              ffmpeg \
+              lame \
+              libmad0 \
+              libsox-fmt-mp3 \
+              sox \
+              libjpeg-dev \
+              swig
+
+pipelines:
+  default:
+    - step:
+        name: Run tests
+        caches:
+          - pip
+          - apt-lists
+          - apt-cache
+        script:
+          - *setup-script
+          - cd backend
+          - pip install -r requirements.txt
+          - export OPENAI_API_KEY='dummy' 
+          - python manage.py test
